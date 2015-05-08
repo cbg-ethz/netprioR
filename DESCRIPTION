@@ -1,9 +1,27 @@
 Package: netprioR
+Imports:
+    dplyr,
+    ggplot2,
+    Matrix
+Depends:
+    methods,
+    graphics,
+    R(>= 2.10)
+Suggests:
+    knitr
+biocViews:
+    CellBasedAssays,
+    Preprocessing,
+    GeneTarget,
+    Visualization
+VignetteBuilder: knitr
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
+Lazyload: yes
+Title: netprioR: Network-based prioritisation of genes
+Version: 0.99.1
 Date: 2015-05-08
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Author: Fabian Schmich
+Maintainer: Fabian Schmich <fabian.schmich@bsse.ethz.ch>
+Description: 
+License: GPL-3
+URL: http://www.cbg.ethz.ch/software/netprioR
