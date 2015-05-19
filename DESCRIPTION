@@ -1,8 +1,7 @@
 Package: netprioR
 Imports:
     dplyr,
-    ggplot2,
-    Matrix
+    ggplot2
 Depends:
     methods,
     graphics,
