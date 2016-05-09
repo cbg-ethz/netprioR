@@ -1,0 +1,173 @@
+---
+title: "netprioR Vignette"
+author: "Fabian Schmich"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+package: netprioR
+abstract: >
+  *netprioR* is a probabilistic graphical model for gene prioritisation. The model integrates network data, such as protein--protein interaction networks or co-expression networks, gene phenotypes, e.g. from perturbation experiments, as well as prior knowledge about a priori known true positives and true negatives for a prioritisation task. The goal of the model is to provide a robust prioritisation (i.e. ranked list) of genes accounting for all dependencies in the input data. Parameter inference and imputation of hidden data is performed in an Expectation Maximisation (EM) framework. Here, we showcase the functionality of the netprioR package on simulated data.
+vignette: >
+  %\VignetteIndexEntry{netprioR Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}  
+output:
+  BiocStyle::html_document
+---
+```{r global_options, include=FALSE}
+fileidentifier <- "netprioR_cache"
+library(knitr)
+library(dplyr)
+library(pander)
+library(ggplot2)
+library(BiocStyle)
+library(netprioR)
+library(Matrix)
+# library(gdata)
+# library(tidyr)
+knitr::opts_chunk$set(
+  cache.path = paste("./cache/", fileidentifier, "/", sep = ""),
+  fig.width = 7,
+  fig.height = 7,
+  fig.align = "center",
+  fig.path = paste("./figs/", fileidentifier, "/", sep = ""),
+  cache = FALSE, #Default cache off
+  echo = FALSE,
+  warning = FALSE, 
+  message = FALSE,
+  comment = NA,
+  tidy = TRUE)
+rm(list = ls())
+```
+
+
+## Data Simulation
+*netprioR* requires the following data as input
+
+- A priori known labels for true positive (TP) and true negative (TN) genes $Y$
+- Network data describing gene--gene similarities $G$
+- Gene phenotypes (and other covariates) $X$
+
+In the following steps we simulate data for a set of N = `r N <- 1000; N` genes 
+and a two class prioritisation task (positive vs. negative) and benchmark the performance
+of our model against the case where we prioritise soleley based on phenotypes.
+
+
+### Prior knowledge labels
+We simulate the case where we know `r nlabel <- 100; nlabel` labels a priori, which corresponds
+to `r nlabel/N * 100`% labelled data. We simulate equal numberos of `r nlabel/2 %>% floor` positives and 
+`r nlabel/2 %>% floor` negatives, setting
+```{r, echo = TRUE}
+members_per_class <-  c(N/2, N/2) %>% floor
+```
+Then we simulate the labels, randomly choosing equal numbers of a priori known
+labels for each class.
+```{r, echo = TRUE}
+class.labels <- simulate_labels(values = c(+1, -1), sizes = members_per_class, 
+                          nobs = c(nlabel/2, nlabel/2) %>% floor)
+```
+The list of simulated labels contains the complete vector of `r N` labels `Y`, indices
+of labelled (`l`) and unlabelled (`u`) genes, as well as vector of observed labels, where
+unlabelled genes are set to 0.
+```{r, echo = TRUE}
+lapply(class.labels, head)
+```
+
+### Network data
+Next, we simulate high noise and low noise network data in the form of `r N` x `r N`
+adjacency matrices. The low noise networks obey the class structure defined above, whereas
+the high noise networks do not.
+```{r, echo = TRUE, cache = TRUE}
+G <- list(LOW_NOISE1 = simulate_network_scalefree(nmemb = members_per_class, pclus = 0.8),
+          LOW_NOISE2 = simulate_network_scalefree(nmemb = members_per_class, pclus = 0.8),
+          HIGH_NOISE = simulate_network_random(nmemb = members_per_class, nnei = 1)
+          )
+```
+The networks are sparse binary adjacency matrices, which we can visualise as images. 
+This allows to see the structure within the low noise networks, where we observe 80% 
+of all edges in the 2nd and 4th quadrant, i.e. within each class, as defined above.
+```{r, echo = TRUE, cache = TRUE}
+image(G$LOW_NOISE1)
+```
+
+### Phenotypes
+We simulate phenotype matching our simulated labels from two normal distributions
+with a difference in means that reflects our phenotype effect size. We set the
+effect size to 
+```{r, echo = TRUE}
+mdiff <- 0.5
+```
+and simulate the phenotypes
+```{r, echo = TRUE}
+X <- simulate_phenotype(Y = class.labels$Y, meandiff = mdiff, sd = 1, pivot = 0.5)
+```
+The higher the phenotype effect size is, the easier it is to separate the two classes 
+soleley based on the phenotype. We visualise the phenotypes for the two classes
+as follows
+```{r, echo = TRUE}
+data.frame(Phenotype = X[,1], Class = rep(c("Positive", "Negative"), each = N/2)) %>%
+  ggplot() +
+  geom_density(aes(Phenotype, fill = Class), alpha = 0.25, adjust = 2) +
+  theme_bw()
+```
+
+## Gene Prioritisation
+Based on the simulated data above, we now fit the netprioR model for gene prioritisation.
+First, we normalise the network data and compute the graph Laplacians of the
+adjacency matrices.
+```{r, echo = TRUE, cache = TRUE}
+ G <- G %>% lapply(., function(x) x / norm(x))
+ G <- lapply(G, laplacian, norm = "none")
+```
+Next, we call the `learn()` function for parameter estimation and imputation of
+missing data (e.g. the missing labels) using the EM algorithm. We only pass the
+vector of observed labels, `Yobs` and keep the true underlying labels `Y` for
+performance evaluation.
+
+In this example, we will use `a = b = 0.01` in order to yield a sparsifying prior on the estimated
+network weights. We will fit only one model, setting `nrestarts` to 1, whereas in 
+practise multiple restarts are used in order to avoid cases where the EM gets stuck
+in local minima.
+```{r, echo = TRUE, cache = TRUE}
+netprioR <- learn(Yobs = class.labels$Yobs, X = X, G = G, 
+                  l = class.labels$l, u = class.labels$u, 
+                  a = 0.01, b = 0.01, max.iter = 50, use.cg = FALSE, 
+                  nrestarts = 1, max.cores = 1, verbose = FALSE)
+```
+
+## Performance evaluation
+First, we look at the estimated weights (i.e. importance) of each network data set
+```{r, echo = TRUE}
+data.frame(Network = names(netprioR$W), Weight = netprioR$W) %>%
+  mutate(Weight = Weight / sum(Weight) * 100) %>%
+  ggplot(aes(x = Network, y = Weight)) +
+  geom_bar(stat = "identity") +
+  ylab("Relative Weight [%]") +
+  coord_flip() +
+  theme_bw()
+```
+We can see that the relative weight of the low noise networks is much higher than
+for the high noise networks indicating that, as expected, the low noise networks
+are more informative for the learning task.
+
+Second, we evaluate the performance of the prioritised list of genes by comparing
+the imputed, missing labels `Yimp[u]` against the true underlying labels `Y` and
+computing receiver operator characteristic (ROC)
+```{r, echo = TRUE}
+auc.yimp <- AUC(pred = netprioR$Yimp, Y = class.labels$Y, ind = class.labels$u, plot = TRUE, binarise = FALSE)
+```
+
+In addition, we compute the ROC curve for the case where we prioritise soleley
+based on the phenotype
+```{r, echo = TRUE}
+auc.x <- AUC(pred = X[,1], Y = class.labels$Y, ind = class.labels$u, plot = TRUE, binarise = FALSE)
+```
+
+Comparing the area under the receiver operator characteristic curve (AUC) values for both
+cases, we can see that by integrating network data and a priori known labels for TPs
+and TNs, we gain about `r round(auc.yimp$auc - auc.x$auc, 2)` in AUC.
+
+
+## Session Information
+Here is the output of `sessionInfo()` on the system on which this document was compiled:
+```{r}
+sessionInfo()
+```
