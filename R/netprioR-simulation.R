@@ -70,7 +70,7 @@ simulate_network_random <- function(nmemb = c(100, 100), nnei = 1) {
 #' @return List of Y, Yobs and indices for labeled instances
 simulate_labels <- function(values, sizes, nobs) {
   stopifnot(length(sizes) == length(values) & length(nobs) == length(values))
-  Y <- sapply(1:length(values), function(i) rep(values[i], sizes[i])) %>% as.numeric
+  Y <- lapply(1:length(values), function(i) rep(values[i], sizes[i])) %>% do.call("c", .)
   l <- sapply(1:length(values), function(i) {
     if (i == 1) {
       sampfrom <- (1:sizes[i])
@@ -80,29 +80,27 @@ simulate_labels <- function(values, sizes, nobs) {
     sample(sampfrom, nobs[i]) 
   }) %>% unlist %>% as.numeric %>% sort
   u <- setdiff(1:length(Y), l)
-  #   Y <- c(Y[l], Y[u])
-  #   l <- 1:sum(nobs)
-  #   u <- setdiff(1:length(Y), l)
   Yobs <- Y
-  Yobs[u] <- 0
-  return(list(Y = Y, Yobs = Yobs, N = length(Y), l = l, u = u))
+  Yobs[u] <- NA
+  return(list(labels.true = factor(Y), labels.obs = factor(Yobs), labelled = l, unlabelled = u))
 }
 
 #' Simulate phenotypes correlated to labels pivoted into two groups
 #' 
 #' @author Fabian Schmich
 #' @import Matrix
+#' @import dplyr
 #' @export
-#' @param Y Vector of labels
+#' @param labels.true Vector of labels
 #' @param meandiff difference of means between positive and negative groups
 #' @param sd Standard deviation of the phenotype
-#' @param pivot Pivot point to split labels into groups
 #' @return Simulated phenotype
-simulate_phenotype <- function(Y, meandiff, sd, pivot = 0) {
-  X <-  rep(NA, length(Y)) %>% cbind
-  s0 <- which(Y < pivot)
-  b0 <- which(Y >= pivot)
+simulate_phenotype <- function(labels.true, meandiff, sd) {
+  stopifnot(length(levels(labels.true)) == 2)
+  X <-  rep(NA, length(labels.true)) %>% cbind
+  s0 <- which(labels.true == levels(labels.true)[1])
+  b0 <- which(labels.true == levels(labels.true)[2])
   X[s0] <- rnorm(length(s0), -meandiff/2, sd)
   X[b0] <- rnorm(length(b0), +meandiff/2, sd)
-  return(Matrix(X))
+  return(X)
 }

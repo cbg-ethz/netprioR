@@ -8,6 +8,8 @@ Imports:
     foreach,
     parallel,
     sparseMVN,
+    ggplot2,
+    gridExtra,
     pROC
 Depends:
     methods,
@@ -15,13 +17,13 @@ Depends:
     R(>= 3.00)
 Suggests: 
     knitr,
-    ggplot2,
     BiocStyle,
     pander
 VignetteBuilder: knitr
 biocViews: CellBasedAssays, Preprocessing, GeneTarget
 Type: Package
 Lazyload: yes
+LazyData: true
 Version: 0.99.1
 Date: 2016-05-08
 Author: Fabian Schmich

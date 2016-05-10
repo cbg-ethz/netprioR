@@ -25,6 +25,30 @@ netprioR(networks, phenotypes, labels, ...)
 \item{...}{Additional arguments}
 
 \item{fit.model}{Indicator whether to fit the model}
+
+\item{a}{Shape parameter of Gamma prior for W}
+
+\item{b}{Scale parameter of Gamma prior for W}
+
+\item{sigma2}{Cariance for Gaussian labels}
+
+\item{tau2}{Variance for Gaussian prior for beta}
+
+\item{eps}{Small value added to diagonal of Q in order to make it non-singular}
+
+\item{max.iter}{Maximum number of iterations for EM}
+
+\item{thresh}{Threshold for termination of EM with respect to change in parameters}
+
+\item{use.cg}{Flag whether to use conjugate gradient instead of exact computation of expectations}
+
+\item{thresh.cg}{Threshold for the termination of the conjugate gradient solver}
+
+\item{nrestarts}{Number of restarts for EM}
+
+\item{max.cores}{Maximum number of cores to use for parallel computation}
+
+\item{verbose}{Print verbose output}
 }
 \value{
 A \code{\linkS4class{netprioR}} object

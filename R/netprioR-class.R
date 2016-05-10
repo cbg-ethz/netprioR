@@ -37,6 +37,18 @@ setClass(Class = "netprioR",
 #' @param phenotypes Matrix of dimension NxP containing covariates
 #' @param labels Vector of Nx1 labels for all genes (NA if no label available)
 #' @param fit.model Indicator whether to fit the model
+#' @param a Shape parameter of Gamma prior for W
+#' @param b Scale parameter of Gamma prior for W
+#' @param sigma2 Cariance for Gaussian labels
+#' @param tau2 Variance for Gaussian prior for beta
+#' @param eps Small value added to diagonal of Q in order to make it non-singular
+#' @param max.iter Maximum number of iterations for EM
+#' @param thresh Threshold for termination of EM with respect to change in parameters
+#' @param use.cg Flag whether to use conjugate gradient instead of exact computation of expectations
+#' @param thresh.cg Threshold for the termination of the conjugate gradient solver
+#' @param nrestarts Number of restarts for EM
+#' @param max.cores Maximum number of cores to use for parallel computation
+#' @param verbose Print verbose output
 #' @param ... Additional arguments
 #' @return A \code{\linkS4class{netprioR}} object
 setGeneric("netprioR",
@@ -123,6 +135,7 @@ setMethod("netprioR",
 #' @return Plot of the weights, likelihood, ranks, or all three
 plot.netprioR <- function(x, which = c("all", "weights", "lik", "scores"), ...) {
   which <- match.arg(which)
+  Weight <- Network <- Iteration <- Loglik <- Score <- Rank <- Id <- NULL
   if (x@is.fitted) {
     pl.weights <- ggplot(weights(x) %>% 
                            mutate(Weight = Weight / sum(Weight)) %>%
