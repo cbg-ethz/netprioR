@@ -104,5 +104,5 @@ simulate_phenotype <- function(Y, meandiff, sd, pivot = 0) {
   b0 <- which(Y >= pivot)
   X[s0] <- rnorm(length(s0), -meandiff/2, sd)
   X[b0] <- rnorm(length(b0), +meandiff/2, sd)
-  return(Matrix(X, nrow = nrow(X), ncol = ncol(X)))
+  return(Matrix(X))
 }

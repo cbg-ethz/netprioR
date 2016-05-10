@@ -9,7 +9,7 @@ Imports:
     doMC,
     foreach,
     parallel,
-    mvtnorm,
+    sparseMVN,
     pROC
 Depends:
     methods,
@@ -30,5 +30,5 @@ Author: Fabian Schmich
 Maintainer: Fabian Schmich <fabian.schmich@bsse.ethz.ch>
 Description: 
 License: GPL-3
-URL: http://www.cbg.ethz.ch/software/netprioR
+URL: http://bioconductor.org/packages/netprioR
 RoxygenNote: 5.0.1
