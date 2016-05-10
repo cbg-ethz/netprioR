@@ -11,7 +11,7 @@
 #' @param pclus Scalar in [0, 1] determining how strictly distinct groups are
 #' @return Adjacency matrix
 #' @examples 
-#' network <- simulate_networks_scalefree(nmemb = c(10, 10), pclus = 0.8)
+#' network <- simulate_network_scalefree(nmemb = c(10, 10), pclus = 0.8)
 simulate_network_scalefree <- function(nmemb, pclus = 1) {
   N <- sum(nmemb)
   names <- paste(rep(LETTERS[1:length(nmemb)], nmemb), sapply(nmemb, function(x) 1:x), sep = "")
@@ -105,7 +105,7 @@ simulate_labels <- function(values, sizes, nobs) {
 #' @return Simulated phenotype
 #' @examples 
 #' data(simulation)
-#' phenotypes <- simulate_phenotypes(labels.true = simulation$labels.true, meandiff = 0.5, sd = 1)
+#' phenotypes <- simulate_phenotype(labels.true = simulation$labels.true, meandiff = 0.5, sd = 1)
 simulate_phenotype <- function(labels.true, meandiff, sd) {
   stopifnot(length(levels(labels.true)) == 2)
   X <-  rep(NA, length(labels.true)) %>% cbind

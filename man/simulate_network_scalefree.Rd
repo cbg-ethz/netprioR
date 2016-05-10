@@ -20,7 +20,7 @@ two groups and a parameter pclus that determines how strictly distinct the group
 are
 }
 \examples{
-network <- simulate_networks_scalefree(nmemb = c(10, 10), pclus = 0.8)
+network <- simulate_network_scalefree(nmemb = c(10, 10), pclus = 0.8)
 }
 \author{
 Fabian Schmich
