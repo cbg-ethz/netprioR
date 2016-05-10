@@ -11,15 +11,15 @@ setMethod(f = "summary",
           signature = signature(object = "netprioR"),
           definition = function(object) {
             show(object)
-            cat("Model:\n")
+            cat("Model: ")
             if (object@is.fitted) {
-              cat("Likelihood[log]:", tail(object@model$logliks, n = 1), "\n")
+              cat("\nLikelihood[log]:", tail(object@model$logliks, n = 1), "\n")
               cat("Fixed effects:", object@model$beta, "\n")
               cat("Network weights:\n")
               print(data.frame(Network = names(object@model$W), Weight = object@model$W), 
                     quote = FALSE, row.names = FALSE)
             } else {
-              cat("not fitted\n")
+              cat("not fitted.\n")
             }    
           }
 )

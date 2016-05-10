@@ -10,7 +10,6 @@
 #' @importFrom doMC registerDoMC
 #' @importFrom parallel detectCores
 #' @importFrom foreach foreach %dopar%
-#' @export
 #' @param Yobs Observed labels (NA, if not observed)
 #' @param X Phenotypes
 #' @param G Graph Laplacians
@@ -154,31 +153,6 @@ laplacian <- function(x, norm = c("none", "sym", "asym")) {
          none = L,
          sym = Diagonal(x = dsqrt) %*% L %*% Diagonal(x = dsqrt),
          asym = solve(D) %*% L)
-}
-
-#' AUC
-#' 
-#' Compute the Area Under the ROC Curve for predicted labels
-#' 
-#' @author Fabian Schmich
-#' @import Matrix
-#' @import pROC
-#' @export
-#' @param pred Predicted labels
-#' @param Y True labels
-#' @param ind Indices of instances to consider
-#' @param pivot Pivot to split labels into positive and negative
-#' @param binarise Indicator whether to binarise predictions prior to evaluation
-#' @param plot Indicator whether to plot the AUC curve
-#' @return AUC
-AUC <- function(pred, Y, ind = 1:length(Y), pivot = 0, binarise = TRUE, plot = TRUE) {
-  stopifnot(length(pred) == length(Y))
-  if (binarise) {
-    pred <- sapply(pred, function(x) ifelse(x > pivot, 1, 0))
-  }
-  ans <- roc(cases = pred[intersect(ind, which(Y >= pivot))], controls = pred[intersect(ind, which(Y < pivot))], direction = "<")
-  if (plot) plot.roc(ans, print.auc = TRUE, print.auc.x = 0.2, print.auc.y = 0.1)
-  return(ans)
 }
 
 

@@ -9,19 +9,22 @@
 \usage{
 netprioR(networks, phenotypes, labels, ...)
 
-\S4method{netprioR}{list,matrix,factor}(networks, phenotypes, labels, a = 0.1,
-  b = 0.1, sigma2 = 1, tau2 = 100, eps = 1e-10, max.iter = 500,
-  thresh = 1e-06, use.cg = FALSE, thresh.cg = 1e-06, nrestarts = 5,
-  max.cores = detectCores(), verbose = TRUE, ...)
+\S4method{netprioR}{list,matrix,factor}(networks, phenotypes, labels,
+  fit.model = FALSE, a = 0.1, b = 0.1, sigma2 = 0.1, tau2 = 100,
+  eps = 1e-10, max.iter = 500, thresh = 1e-06, use.cg = FALSE,
+  thresh.cg = 1e-06, nrestarts = 5, max.cores = detectCores(),
+  verbose = TRUE, ...)
 }
 \arguments{
 \item{networks}{List of NxN adjacency matrices of gene-gene similarities}
 
 \item{phenotypes}{Matrix of dimension NxP containing covariates}
 
-\item{labels}{Vector of Nx1 labels for all genes. NA if no label available.}
+\item{labels}{Vector of Nx1 labels for all genes (NA if no label available)}
 
 \item{...}{Additional arguments}
+
+\item{fit.model}{Indicator whether to fit the model}
 }
 \value{
 A \code{\linkS4class{netprioR}} object

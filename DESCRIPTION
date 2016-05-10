@@ -1,8 +1,6 @@
 Package: netprioR
 Title: netprioR: Network-based prioritisation of genes
-Description: This package provides functionality for integrative gene prioritisation 
-    based on network data, gene phenotypes and additional prior knowledge about 
-    true positives and true negatives. The package is based on the model from Schmich et al., 2016.
+Description: This package provides a model for semi-supervised prioritisation of genes integrating network data, phenotypes and additional prior knowledge about TP and TN gene labels.
 Imports:
     Matrix,
     dplyr,

@@ -4,17 +4,17 @@
 \alias{plot.netprioR}
 \title{Plot method for \code{\linkS4class{netprioR}} objects}
 \usage{
-\method{plot}{netprioR}(x, which = c("weights", "lik", "scores"), ...)
+\method{plot}{netprioR}(x, which = c("all", "weights", "lik", "scores"), ...)
 }
 \arguments{
 \item{x}{A \code{\linkS4class{netprioR}} object}
 
-\item{which}{Flag for which plot should be shown, options: weights, lik, scores}
+\item{which}{Flag for which plot should be shown, options: weights, lik, scores, all}
 
 \item{...}{Additional paramters for plot}
 }
 \value{
-Plot of the weights, likelihood, or ranks
+Plot of the weights, likelihood, ranks, or all three
 }
 \description{
 Plot method for \code{\linkS4class{netprioR}} objects

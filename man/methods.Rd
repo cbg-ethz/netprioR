@@ -2,32 +2,34 @@
 % Please edit documentation in R/netprioR-methods.R
 \docType{methods}
 \name{weights}
+\alias{ROC,netprioR-method}
 \alias{ranks,netprioR-method}
 \alias{weights}
 \alias{weights,netprioR-method}
-\title{Retrieve network weights and prioritisation ranks from \code{\linkS4class{netprioR}} objects}
+\title{\code{\linkS4class{netprioR}} accessors}
 \usage{
 weights(object, ...)
 
 \S4method{weights}{netprioR}(object)
 
 \S4method{ranks}{netprioR}(object)
+
+\S4method{ROC}{netprioR}(object, true.labels, plot = FALSE)
 }
 \arguments{
 \item{object}{A \code{\linkS4class{netprioR}} object}
+
+\item{true.labels}{True full set of underlying labels}
+
+\item{plot}{Flag whether to plot the AUC curve}
 }
 \value{
-Estimated network weights or prioritisation ranks
+Estimated network weights, prioritisation ranks or ROC curve
 }
 \description{
-Retrieve network weights and prioritisation ranks from \code{\linkS4class{netprioR}} objects
+Retrieve network weights, prioritisation ranks and ROC curves
 }
 \author{
 Fabian Schmich
-}
-\seealso{
-\code{\link{ranks}}
-
-\code{\link{weights}}
 }
 

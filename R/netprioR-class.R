@@ -35,7 +35,8 @@ setClass(Class = "netprioR",
 #'
 #' @param networks List of NxN adjacency matrices of gene-gene similarities
 #' @param phenotypes Matrix of dimension NxP containing covariates
-#' @param labels Vector of Nx1 labels for all genes. NA if no label available. 
+#' @param labels Vector of Nx1 labels for all genes (NA if no label available)
+#' @param fit.model Indicator whether to fit the model
 #' @param ... Additional arguments
 #' @return A \code{\linkS4class{netprioR}} object
 setGeneric("netprioR",
@@ -50,9 +51,10 @@ setMethod("netprioR",
           function(networks, 
                    phenotypes, 
                    labels,
+                   fit.model = FALSE,
                    a = 0.1,
                    b = 0.1,
-                   sigma2 = 1,
+                   sigma2 = 0.1,
                    tau2 = 100,
                    eps = 1e-10,
                    max.iter = 500,
@@ -64,36 +66,45 @@ setMethod("netprioR",
                    verbose = TRUE,
                    ...){
             stopifnot(length(levels(labels)) == 2)
-            labelled <- which(!is.na(labels))
-            unlabelled <- setdiff(1:length(labels), labelled)
-            Yobs <- factor(labels, labels = c(-1, +1)) %>% as.character %>% as.numeric
-            G <- lapply(networks, function(x) {
-              x <- x / norm(x)
-              return(laplacian(x, norm = "none"))
-            })
-            model <- learn(Yobs = Yobs,
-                           G = G,
-                           X = phenotypes,
-                           l = labelled,
-                           u = unlabelled,
-                           a = a,
-                           b = b,
-                           sigma2 = sigma2,
-                           tau2 = tau2,
-                           eps = eps,
-                           max.iter = max.iter,
-                           thresh = thresh,
-                           use.cg = use.cg,
-                           nrestarts = nrestarts,
-                           max.cores = max.cores,
-                           verbose = verbose)
-            
-            new("netprioR",
-                networks = networks,
-                phenotypes = phenotypes,
-                labels = labels,
-                model = model,
-                is.fitted = TRUE)
+            if (fit.model) {
+              labelled <- which(!is.na(labels))
+              unlabelled <- setdiff(1:length(labels), labelled)
+              Yobs <- factor(labels, labels = c(-1, +1)) %>% as.character %>% as.numeric
+              G <- lapply(networks, function(x) {
+                x <- x / norm(x)
+                return(laplacian(x, norm = "none"))
+              })
+              model <- learn(Yobs = Yobs,
+                             G = G,
+                             X = phenotypes,
+                             l = labelled,
+                             u = unlabelled,
+                             a = a,
+                             b = b,
+                             sigma2 = sigma2,
+                             tau2 = tau2,
+                             eps = eps,
+                             max.iter = max.iter,
+                             thresh = thresh,
+                             use.cg = use.cg,
+                             nrestarts = nrestarts,
+                             max.cores = max.cores,
+                             verbose = verbose)
+              
+              new("netprioR",
+                  networks = networks,
+                  phenotypes = phenotypes,
+                  labels = labels,
+                  model = model,
+                  is.fitted = TRUE)
+            } else {
+              new("netprioR",
+                  networks = networks,
+                  phenotypes = phenotypes,
+                  labels = labels,
+                  model = list(),
+                  is.fitted = FALSE)
+            }
           }
 )
 
@@ -102,30 +113,42 @@ setMethod("netprioR",
 #' @author Fabian Schmich
 #' @import ggplot2
 #' @import dplyr
+#' @importFrom gridExtra grid.arrange
 #' @export
 #' @method plot netprioR
 #' 
 #' @param x A \code{\linkS4class{netprioR}} object
-#' @param which Flag for which plot should be shown, options: weights, lik, scores
+#' @param which Flag for which plot should be shown, options: weights, lik, scores, all
 #' @param ... Additional paramters for plot
-#' @return Plot of the weights, likelihood, or ranks
-plot.netprioR <- function(x, which = c("weights", "lik", "scores"), ...) {
+#' @return Plot of the weights, likelihood, ranks, or all three
+plot.netprioR <- function(x, which = c("all", "weights", "lik", "scores"), ...) {
   which <- match.arg(which)
   if (x@is.fitted) {
+    pl.weights <- ggplot(weights(x) %>% 
+                           mutate(Weight = Weight / sum(Weight)) %>%
+                           arrange(desc(Weight)) %>%
+                           mutate(Network = factor(Network, levels = Network)), 
+                         aes(x = Network, y = Weight)) + 
+      geom_bar(stat = "identity") + 
+      ylab("Relative weight") + 
+      ggtitle("Network weights") +
+      theme_bw() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    pl.lik <-ggplot(data.frame(Iteration = 2:length(x@model$logliks), Loglik = x@model$logliks[-1]), aes(x = Iteration, y = Loglik)) + 
+      geom_line() + 
+      scale_y_continuous(labels = function(x) format(x, nsmall = 2, scientific = TRUE)) +
+      ylab("Likelihood [log]") + 
+      ggtitle("EM iterations") +
+      theme_bw()
+    pl.scores <- ggplot(ranks(x), aes(x = Score)) + geom_histogram(binwidth = 0.1) + 
+      ylab("Count") +
+      ggtitle("Prioritisation") +
+      theme_bw()
     switch(which,
-           "weights" = ggplot(weights(x) %>% mutate(Weight = Weight / sum(Weight)), aes(x = Network, y = Weight)) + 
-             geom_bar(stat = "identity") + 
-             ylab("Relative weight") + 
-             coord_flip() + 
-             theme_bw(),
-           "lik" = ggplot(data.frame(Iteration = 2:length(x@model$logliks), Loglik = x@model$logliks[-1]), aes(x = Iteration, y = Loglik)) + 
-             geom_line() + 
-             scale_y_continuous(labels = function(x) format(x, nsmall = 2, scientific = TRUE)) +
-             ylab("Likelihood [log]") + 
-             theme_bw(),
-           "scores" = ggplot(ranks(x), aes(x = Score)) + geom_histogram(binwidth = 0.1) + 
-             ylab("Count") +
-             theme_bw()
+           "weights" = pl.weights,
+           "lik" = pl.lik,
+           "scores" = pl.scores,
+           "all" = grid.arrange(pl.lik, pl.weights, pl.scores, ncol = 1)
     )
   } else {
     warning("No model fitted.")
