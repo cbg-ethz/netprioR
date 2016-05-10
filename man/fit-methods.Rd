@@ -23,6 +23,16 @@ A \code{\linkS4class{netprioR}} object with fitted model
 \description{
 Fit \code{\linkS4class{netprioR}} model
 }
+\examples{
+data(simulation)
+np <- netprioR(networks = simulation$networks,
+               phenotypes = simulation$phenotypes,
+               labels = simulation$labels.obs,
+               model.fit = FALSE)
+summary(np)
+np <- fit(np, nrestarts = 1, verbose = FALSE)
+summary(np)
+}
 \author{
 Fabian Schmich
 }

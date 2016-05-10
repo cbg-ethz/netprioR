@@ -21,6 +21,10 @@ Estimated network weights
 \description{
 Retrieve network weights
 }
+\examples{
+data(simulation)
+weights(simulation$model)
+}
 \author{
 Fabian Schmich
 }

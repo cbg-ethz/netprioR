@@ -25,6 +25,10 @@ ROC curve with AUC
 \description{
 Compute ROC curve from netprioR model and true labels
 }
+\examples{
+data(simulation)
+ROC(simulation$model, true.labels = simulation$labels.true)
+}
 \author{
 Fabian Schmich
 }

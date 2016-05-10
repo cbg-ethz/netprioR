@@ -19,6 +19,10 @@ Ranked list of prioritised genes
 \description{
 Retrieve ranked prioritisation list
 }
+\examples{
+data(simulation)
+ranks(simulation$model)
+}
 \author{
 Fabian Schmich
 }

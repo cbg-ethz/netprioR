@@ -56,6 +56,15 @@ setGeneric("netprioR",
              standardGeneric("netprioR")
            })
 #' @rdname netprioR-class
+#' @examples 
+#' \donttest{ # runs long-ish
+#' data(simulation)
+#' np <- netprioR(networks = simulation$networks,
+#'                phenotypes = simulation$phenotypes,
+#'                labels = simulation$labels.obs,
+#'                fit.model = TRUE)
+#' summary(np)          
+#' }
 setMethod("netprioR",
           signature = signature(networks = "list", 
                                 phenotypes = "matrix",
@@ -133,6 +142,9 @@ setMethod("netprioR",
 #' @param which Flag for which plot should be shown, options: weights, lik, scores, all
 #' @param ... Additional paramters for plot
 #' @return Plot of the weights, likelihood, ranks, or all three
+#' @examples 
+#' data(simulation)
+#' plot(simulation$model)
 plot.netprioR <- function(x, which = c("all", "weights", "lik", "scores"), ...) {
   which <- match.arg(which)
   Weight <- Network <- Iteration <- Loglik <- Score <- Rank <- Id <- NULL

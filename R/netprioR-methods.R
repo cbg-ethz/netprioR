@@ -2,13 +2,15 @@
 #'
 #' @author Fabian Schmich
 #' @rdname weights-methods
-#' @aliases weights
 #' @export
 #' @param object A \code{\linkS4class{netprioR}} object 
 #' @param ... Additional arguments
 #' @return Estimated network weights
 setGeneric(name = "weights", def = function(object) standardGeneric("weights"))
 #' @rdname weights-methods
+#' @examples 
+#' data(simulation)
+#' weights(simulation$model)
 setMethod(f = "weights",
           signature = signature(object = "netprioR"),
           function(object) {
@@ -29,13 +31,15 @@ setMethod(f = "weights",
 #' 
 #' @author Fabian Schmich
 #' @rdname ranks-methods
-#' @aliases ranks
 #' @import dplyr
 #' @param object A \code{\linkS4class{netprioR}} object 
 #' @return Ranked list of prioritised genes
 #' @export
 setGeneric(name = "ranks", def = function(object) standardGeneric("ranks"))
 #' @rdname ranks-methods
+#' @examples 
+#' data(simulation)
+#' ranks(simulation$model)
 setMethod(f = "ranks",
           signature = signature(object = "netprioR"),
           function(object) {
@@ -75,6 +79,9 @@ setMethod(f = "ranks",
 #' @export
 setGeneric(name = "ROC", def = function(object, ...) standardGeneric("ROC"))
 #' @rdname ROC-methods
+#' @examples 
+#' data(simulation)
+#' ROC(simulation$model, true.labels = simulation$labels.true)
 setMethod(f = "ROC",
           signature = signature(object = "netprioR"),
           function(object, true.labels, plot = FALSE, ...) {
@@ -106,6 +113,15 @@ setMethod(f = "ROC",
 #' @return A \code{\linkS4class{netprioR}} object with fitted model
 setGeneric(name = "fit", def = function(object, ...) standardGeneric("fit"))
 #' @rdname fit-methods
+#' @examples 
+#' data(simulation)
+#' np <- netprioR(networks = simulation$networks,
+#'                phenotypes = simulation$phenotypes,
+#'                labels = simulation$labels.obs,
+#'                model.fit = FALSE)
+#' summary(np)
+#' np <- fit(np, nrestarts = 1, verbose = FALSE)
+#' summary(np)
 setMethod(f = "fit",
           signature = signature(object = "netprioR"),
           function(object, refit = FALSE, ...) {

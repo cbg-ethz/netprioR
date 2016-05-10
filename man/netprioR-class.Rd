@@ -69,6 +69,16 @@ Class that represents a netprioR model.
 
 \item{\code{model}}{List containing estimated parameters and imputed missing data}
 }}
+\examples{
+\donttest{ # runs long-ish
+data(simulation)
+np <- netprioR(networks = simulation$networks,
+               phenotypes = simulation$phenotypes,
+               labels = simulation$labels.obs,
+               fit.model = TRUE)
+summary(np)          
+}
+}
 \author{
 Fabian Schmich
 }

@@ -19,6 +19,10 @@ Plot of the weights, likelihood, ranks, or all three
 \description{
 Plot method for \code{\linkS4class{netprioR}} objects
 }
+\examples{
+data(simulation)
+plot(simulation$model)
+}
 \author{
 Fabian Schmich
 }

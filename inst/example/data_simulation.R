@@ -13,5 +13,6 @@ networks <- list(LOW_NOISE1 = simulate_network_scalefree(nmemb = c(N/2, N/2), pc
 )
 labels <- simulate_labels(values = c("Positive", "Negative"), sizes = c(N/2, N/2), nobs = c(nlabel/2, nlabel/2)) 
 phenotypes <- simulate_phenotype(labels.true = labels$labels.true, meandiff = 0.5, sd = 1)
-simulation <- c(labels[c("labels.true", "labels.obs")], networks = list(networks), phenotypes = phenotypes)
+np <- netprioR(networks = networks, phenotypes = phenotypes, labels = labels$labels.obs, fit.model = TRUE)
+simulation <- c(labels[c("labels.true", "labels.obs")], networks = list(networks), phenotypes = list(phenotypes), model = np)
 save(simulation, file = "data/simulation.rdata")
