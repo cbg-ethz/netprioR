@@ -5,7 +5,7 @@ Imports:
     stats,
     Matrix,
     dplyr,
-    doMC,
+    doParallel,
     foreach,
     parallel,
     sparseMVN,

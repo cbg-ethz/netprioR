@@ -7,7 +7,7 @@
 #' @import dplyr
 #' @importFrom stats runif rnorm
 #' @importFrom sparseMVN dmvn.sparse rmvn.sparse
-#' @importFrom doMC registerDoMC
+#' @importFrom doParallel registerDoParallel
 #' @importFrom parallel detectCores
 #' @importFrom foreach foreach %dopar%
 #' @param Yobs Observed labels (NA, if not observed)
@@ -45,7 +45,7 @@ learn <- function(Yobs, X, G, l, u, a = 0.1, b = 0.1, sigma2 = 1, tau2 = 10, eps
   
   ## Initialise multicore
   if(nrestarts > 1 & max.cores > 1) {
-    registerDoMC(cores = min(nrestarts, max.cores))
+    registerDoParallel(cores = min(nrestarts, max.cores))
   }
   
   EM.runs <- foreach (runs = 1:nrestarts) %dopar% {
