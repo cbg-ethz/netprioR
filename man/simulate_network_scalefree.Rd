@@ -4,7 +4,7 @@
 \alias{simulate_network_scalefree}
 \title{Simulate scalefree networks}
 \usage{
-simulate_network_scalefree(nmemb = c(100, 100), pclus = 1)
+simulate_network_scalefree(nmemb, pclus = 1)
 }
 \arguments{
 \item{nmemb}{Vector of numbers of members per group}
@@ -18,6 +18,9 @@ Adjacency matrix
 Simulate scale free networks for predefined number of members for each of
 two groups and a parameter pclus that determines how strictly distinct the groups
 are
+}
+\examples{
+network <- simulate_networks_scalefree(nmemb = c(10, 10), pclus = 0.8)
 }
 \author{
 Fabian Schmich

@@ -19,6 +19,11 @@ List of Y, Yobs and indices for labeled instances
 \description{
 Simulate labels
 }
+\examples{
+labels <- simulate_labels(values = c("Positive", "Negative"), 
+sizes = c(10, 10), 
+nobs = c(5, 5))
+}
 \author{
 Fabian Schmich
 }

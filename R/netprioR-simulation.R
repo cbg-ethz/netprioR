@@ -10,7 +10,9 @@
 #' @param nmemb Vector of numbers of members per group
 #' @param pclus Scalar in [0, 1] determining how strictly distinct groups are
 #' @return Adjacency matrix
-simulate_network_scalefree <- function(nmemb = c(100, 100), pclus = 1) {
+#' @examples 
+#' network <- simulate_networks_scalefree(nmemb = c(10, 10), pclus = 0.8)
+simulate_network_scalefree <- function(nmemb, pclus = 1) {
   N <- sum(nmemb)
   names <- paste(rep(LETTERS[1:length(nmemb)], nmemb), sapply(nmemb, function(x) 1:x), sep = "")
   X <- Matrix(0, nrow = N, ncol = N, dimnames = list(names, names))  
@@ -47,7 +49,9 @@ simulate_network_scalefree <- function(nmemb = c(100, 100), pclus = 1) {
 #' @param nmemb Vector of number of members for each group
 #' @param nnei Number of neighbours for each node
 #' @return Adjacency matrix of graph
-simulate_network_random <- function(nmemb = c(100, 100), nnei = 1) {
+#' @examples
+#' network <- simulate_network_random(nmemb = c(10, 10), nnei = 1)
+simulate_network_random <- function(nmemb, nnei = 1) {
   N <- sum(nmemb)
   names <- paste(rep(LETTERS[1:length(nmemb)], nmemb), sapply(nmemb, function(x) 1:x), sep = "")
   X <- Matrix(0, nrow = N, ncol = N, dimnames = list(names, names))  
@@ -68,6 +72,10 @@ simulate_network_random <- function(nmemb = c(100, 100), nnei = 1) {
 #' @param sizes Vector of group sizes
 #' @param nobs Vector of number of observed labels per group
 #' @return List of Y, Yobs and indices for labeled instances
+#' @examples 
+#' labels <- simulate_labels(values = c("Positive", "Negative"), 
+#' sizes = c(10, 10), 
+#' nobs = c(5, 5))
 simulate_labels <- function(values, sizes, nobs) {
   stopifnot(length(sizes) == length(values) & length(nobs) == length(values))
   Y <- lapply(1:length(values), function(i) rep(values[i], sizes[i])) %>% do.call("c", .)
@@ -95,6 +103,9 @@ simulate_labels <- function(values, sizes, nobs) {
 #' @param meandiff difference of means between positive and negative groups
 #' @param sd Standard deviation of the phenotype
 #' @return Simulated phenotype
+#' @examples 
+#' data(simulation)
+#' phenotypes <- simulate_phenotypes(labels.true = simulation$labels.true, meandiff = 0.5, sd = 1)
 simulate_phenotype <- function(labels.true, meandiff, sd) {
   stopifnot(length(levels(labels.true)) == 2)
   X <-  rep(NA, length(labels.true)) %>% cbind

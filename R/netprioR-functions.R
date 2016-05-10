@@ -138,9 +138,9 @@ learn <- function(Yobs, X, G, l, u, a = 0.1, b = 0.1, sigma2 = 1, tau2 = 10, eps
 #'
 #' @author Fabian Schmich
 #' @import Matrix
-#' @export
 #' @param x Adjacency matrix
 #' @param norm Type of normalisation
+#' @return Laplacian matrix
 laplacian <- function(x, norm = c("none", "sym", "asym")) {
   norm <- match.arg(norm)
   stopifnot(nrow(x) == ncol(x)) 
@@ -162,7 +162,6 @@ laplacian <- function(x, norm = c("none", "sym", "asym")) {
 #' 
 #' @author Fabian Schmich
 #' @import Matrix
-#' @export 
 #' @param A Matrix
 #' @param b Coefficients
 #' @param x0 Starting solution
@@ -196,7 +195,6 @@ conjugate_gradient <- function(A, b, x0 = rep(0, ncol(A)), threshold = 1e-15, ve
 #' @author Fabian Schmich
 #' @import Matrix
 #' @importFrom stats pnorm
-#' @export
 #' @param yhat Response for labeled (l) and unlabeld (u) genes
 #' @param l Indices of labeled genes
 #' @param u Indices of unlabeled genes
@@ -217,7 +215,6 @@ cmn <- function(yhat, l, u) {
 #'
 #' @author Fabian Schmich
 #' @import Matrix
-#' @export
 #' @param x Inpute matrix
 #' @return Bandwidth
 bandwidth <- function(x) {
@@ -233,7 +230,6 @@ bandwidth <- function(x) {
 #' 
 #' @author Fabian Schmich
 #' @import Matrix
-#' @export
 #' @param x Input matrix
 #' @return Band matrix
 cuthill_mckee <- function(x) {
@@ -243,7 +239,7 @@ cuthill_mckee <- function(x) {
   for (i in 1:ncol(x)) {
     Ai <- setdiff(which(x[R[i],] != 0), R)
     if (length(Ai) > 0) {
-      Ai <- Ai[order(degs$NonZero[Ai], decreasing=F)]
+      Ai <- Ai[order(degs$NonZero[Ai], decreasing = FALSE)]
       R <- append(R, Ai)
     } else {
       R <- append(R, degs$Idx[-R][which.min(degs$NonZero[-R])])
@@ -260,7 +256,6 @@ cuthill_mckee <- function(x) {
 #' 
 #' @author Fabian Schmich
 #' @import Matrix
-#' @export
 #' @param x kernel
 #' @return Normalised kernel
 norm_kern <- function(x) {

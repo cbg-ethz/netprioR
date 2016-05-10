@@ -2,6 +2,7 @@ Package: netprioR
 Title: netprioR: Network-based prioritisation of genes
 Description: This package provides a model for semi-supervised prioritisation of genes integrating network data, phenotypes and additional prior knowledge about TP and TN gene labels.
 Imports:
+    stats,
     Matrix,
     dplyr,
     doMC,
@@ -14,17 +15,17 @@ Imports:
 Depends:
     methods,
     graphics,
-    R(>= 3.00)
+    R(>= 3.3)
 Suggests: 
     knitr,
     BiocStyle,
     pander
 VignetteBuilder: knitr
-biocViews: CellBasedAssays, Preprocessing, GeneTarget
+biocViews: CellBasedAssays, Preprocessing, Network
 Type: Package
 Lazyload: yes
 LazyData: true
-Version: 0.99.1
+Version: 0.99.0
 Date: 2016-05-08
 Author: Fabian Schmich
 Maintainer: Fabian Schmich <fabian.schmich@bsse.ethz.ch>

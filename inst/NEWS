@@ -1,0 +1,5 @@
+netprioR -- an R package integrative gene prioritisation.
+
+Changes in 0.99.1
+* added examples and vignette
+* Re-structured to S4

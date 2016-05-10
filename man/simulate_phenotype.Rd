@@ -19,6 +19,10 @@ Simulated phenotype
 \description{
 Simulate phenotypes correlated to labels pivoted into two groups
 }
+\examples{
+data(simulation)
+phenotypes <- simulate_phenotypes(labels.true = simulation$labels.true, meandiff = 0.5, sd = 1)
+}
 \author{
 Fabian Schmich
 }

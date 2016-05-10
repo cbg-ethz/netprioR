@@ -5,7 +5,7 @@
 \title{Simulate random networks with predefined number of members for each
 of the two groups and the number of neighbours for each node}
 \usage{
-simulate_network_random(nmemb = c(100, 100), nnei = 1)
+simulate_network_random(nmemb, nnei = 1)
 }
 \arguments{
 \item{nmemb}{Vector of number of members for each group}
@@ -18,6 +18,9 @@ Adjacency matrix of graph
 \description{
 Simulate random networks with predefined number of members for each
 of the two groups and the number of neighbours for each node
+}
+\examples{
+network <- simulate_network_random(nmemb = c(10, 10), nnei = 1)
 }
 \author{
 Fabian Schmich

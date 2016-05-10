@@ -11,6 +11,9 @@ laplacian(x, norm = c("none", "sym", "asym"))
 
 \item{norm}{Type of normalisation}
 }
+\value{
+Laplacian matrix
+}
 \description{
 Compute the Laplacian matrix of a graph given its adjacency matrix
 }
