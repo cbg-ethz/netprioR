@@ -6,7 +6,7 @@
 #' @import Matrix
 #' @import dplyr
 #' @importFrom stats runif rnorm
-#' @importFrom mvtnorm rmvnorm
+#' @importFrom sparseMVN dmvn.sparse rmvn.sparse
 #' @importFrom doMC registerDoMC
 #' @importFrom parallel detectCores
 #' @importFrom foreach foreach %dopar%
@@ -38,7 +38,7 @@ learn <- function(Yobs, X, G, l, u, a = 0.1, b = 0.1, sigma2 = 1, tau2 = 10, eps
   P <- ncol(X)
   R.new <- rep(0, N)
   Yimp <- vector(length = N)
-  loglik <- loglik.new <- -Inf
+  loglik <- loglik.new <- -.Machine$double.xmin
   conv <- 1
   Smat <- sigma2 * Diagonal(N)
   Tmat <- tau2 * Diagonal(P)
@@ -51,7 +51,7 @@ learn <- function(Yobs, X, G, l, u, a = 0.1, b = 0.1, sigma2 = 1, tau2 = 10, eps
   
   EM.runs <- foreach (runs = 1:nrestarts) %dopar% {
     W <- W.new <- runif(K, min = 1, max = 1000) #rgamma(n = K, shape = a, rate = b) #rep(1, K)
-    beta <- beta.new <- rmvnorm(n = P, mean = 0, sigma = Tmat %>% as.matrix)
+    beta <- beta.new <- rmvn.sparse(n = P, mu = rep(0, P), CH = Cholesky(Tmat), prec = FALSE)
     Q <- sapply(1:K, function(k) W[k] * G[[k]]) %>% Reduce("+", .) + eps * Diagonal(N)
     for (i in 1:max.iter) {
       ## Expectation Step
@@ -75,29 +75,28 @@ learn <- function(Yobs, X, G, l, u, a = 0.1, b = 0.1, sigma2 = 1, tau2 = 10, eps
       ## Maximisation step: W, beta
       W.new <- sapply(1:K, function(k) ((a - 1 + N/2) / (b + 0.5 * (R.new %*% G[[k]] %*% R.new))) %>% as.numeric)
       beta.new <- solve(t(X[l, drop = FALSE]) %*% solve(Smat[l,l]) %*% X[l, drop = FALSE] + solve(Tmat)) %*% t(X[l, drop = FALSE]) %*% solve(Smat[l,l]) %*% (Yimp[l] - R.new[l])
-#       beta.new <- solve(t(X) %*% solve(Smat) %*% X + solve(Tmat)) %*% t(X) %*% solve(Smat) %*% (Yimp - R.new)
-
+      #       beta.new <- solve(t(X) %*% solve(Smat) %*% X + solve(Tmat)) %*% t(X) %*% solve(Smat) %*% (Yimp - R.new)
       
       ## Compute precision matrix
       Q <- sapply(1:K, function(k) W.new[k] * G[[k]]) %>% Reduce("+", .) + eps * Diagonal(N)
       
       ## Compute log liklihood up to constants
-      loglik.new <- c(- t(Yimp - (X %*% beta.new + R.new)) %*% 
-                        solve(Smat) %*% 
-                        (Yimp - (X %*% beta.new + R.new)),
+      loglik.new <- c(- t(Yimp - (X %*% beta.new + R.new))[l] %*%
+                        solve(Smat[l,l]) %*%
+                        (Yimp - (X %*% beta.new + R.new))[l],
                       - t(R.new) %*% Q %*% R.new,
                       - t(beta.new) %*% solve(Tmat) %*% beta.new,
                       (a - 1) * log(W.new) - b * W.new) %>% sapply(as.numeric) %>% sum
       
-#       loglik.new <- c(dmvnorm(x = Yimp, mean = (X %*% beta.new + R.new) %>% as.numeric, sigma = Smat %>% as.matrix, log = TRUE),
-#                       dmvnorm(x = R.new, mean = rep(0, N), sigma = solve(Q) %>% as.matrix, log = TRUE),
-#                       dmvnorm(x = beta.new %>% as.numeric, mean = rep(0, P), sigma = Tmat %>% as.matrix, log = TRUE),
-#                       dgamma(x = W.new, shape = a, rate = b, log = TRUE)) %>% sum
-      
+      # loglik.new <- c(dmvn.sparse(x = Yimp[l], mu = (X %*% beta.new + R.new)[l] %>% as.numeric, CH = Cholesky(Smat[l,l]), prec = FALSE),
+      #                 dmvn.sparse(x = R.new, mu = rep(0, N), CH = Cholesky(Q), prec = TRUE),
+      #                 dmvn.sparse(x = beta.new %>% as.numeric, mu = rep(0, P), CH = Cholesky(Tmat), prec = FALSE),
+      #                 dgamma(x = W.new, shape = a, rate = b, log = TRUE)) %>% sum
+
       logliks <- c(logliks, loglik.new)
       
       ## Check convergence
-      conv <- abs(loglik - loglik.new)
+      conv <- abs((loglik.new - loglik) / loglik)
       if (verbose) {
         cat(i, "iteration: ", conv, "\n")
         #cat("W: ", W.new %>% as.numeric, "\n")
