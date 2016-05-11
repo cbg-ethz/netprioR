@@ -90,11 +90,12 @@ setMethod(f = "ROC",
               stopifnot((levels(object@labels)) == levels(true.labels))
               stopifnot(length(levels(true.labels)) == 2)
               unlabelled <- which(is.na(object@labels))
-              ans <- roc(cases = object@model$Yimp[intersect(unlabelled, which(true.labels == levels(true.labels)[1]))], 
-                         controls = object@model$Yimp[intersect(unlabelled, which(true.labels == levels(true.labels)[2]))],
-                         direction = ">")
-              if (plot) plot.roc(ans, print.auc = TRUE, print.auc.x = 0.2, print.auc.y = 0.1, ...)
-              return(ans)
+              roccurve(labels.pred = object@model$Yimp[unlabelled], labels.true = true.labels[unlabelled], plot = plot, ...)
+              # ans <- roc(cases = object@model$Yimp[intersect(unlabelled, which(true.labels == levels(true.labels)[1]))], 
+              #            controls = object@model$Yimp[intersect(unlabelled, which(true.labels == levels(true.labels)[2]))],
+              #            direction = ">")
+              # if (plot) plot.roc(ans, print.auc = TRUE, print.auc.x = 0.2, print.auc.y = 0.1, ...)
+              # return(ans)
             } else {
               warning("No fitted model.")
             }
@@ -141,5 +142,53 @@ setMethod(f = "fit",
               warning("Set refit = TRUE, if existing fit should be overwritten.")
               return(object)
             }
+          }
+)
+
+
+#' Retrieve elements of a fitted \code{\linkS4class{netprioR}} object
+#'
+#' @author Fabian Schmich
+#' @rdname getter-methods
+#' @export
+#' @param object A \code{\linkS4class{netprioR}} object 
+#' @return Model of a fitted \code{\linkS4class{netprioR}} object
+setGeneric(name = "model", def = function(object) standardGeneric("model"))
+#' @rdname getter-methods
+setMethod(f = "model",
+          signature = signature(object = "netprioR"),
+          function(object) {
+            if(object@is.fitted) {
+              return(object@model)
+            } else {
+              warning("No fitted model.")
+              return(object)
+            }
+          }
+)
+
+#' @rdname getter-methods
+#' @inheritParams model
+#' @export
+#' @return Phenotypes of a fitted \code{\linkS4class{netprioR}} object
+setGeneric(name = "phenotypes", def = function(object) standardGeneric("phenotypes"))
+#' @rdname getter-methods
+setMethod(f = "phenotypes",
+          signature = signature(object = "netprioR"),
+          function(object) {
+            return(object@phenotypes)
+          }
+)
+
+#' @rdname getter-methods
+#' @inheritParams model
+#' @export
+#' @return Networks of a fitted \code{\linkS4class{netprioR}} object
+setGeneric(name = "networks", def = function(object) standardGeneric("networks"))
+#' @rdname getter-methods
+setMethod(f = "networks",
+          signature = signature(object = "netprioR"),
+          function(object) {
+            return(object@networks)
           }
 )

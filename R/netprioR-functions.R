@@ -271,3 +271,21 @@ norm_kern <- function(x) {
   x[nz.ind] <- nz.val
   return(x)
 }
+
+#' Compute ROC curves from predicted and true labels
+#' 
+#' @author Fabian Schmich
+#' @import pROC
+#' @export
+#' @param labels.pred Predicted labels
+#' @param labels.true True labels
+#' @return ROC object
+roccurve <- function(labels.pred, labels.true, plot = TRUE, ...) {
+  stopifnot(is.factor(labels.true))
+  stopifnot(length(levels(labels.true)) == 2)
+  ans <- roc(cases = labels.pred[which(labels.true == levels(labels.true)[1])], 
+             controls = labels.pred[which(labels.true == levels(labels.true)[2])],
+             direction = ">")
+  if (plot) plot.roc(ans, print.auc = TRUE, print.auc.x = 0.2, print.auc.y = 0.1, ...)
+  return(ans)
+}
